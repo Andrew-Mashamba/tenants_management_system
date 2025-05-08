@@ -90,6 +90,14 @@ class PropertyForm extends Component
             $this->timezone = $property->timezone;
             $this->document_categories = $property->document_categories ?? [];
             $this->images = $property->images ?? [];
+            $this->property_type = $property->property_type;
+            $this->year_built = $property->year_built;
+            $this->amenities = $property->amenities ?? [];
+            $this->total_units = $property->total_units;
+            $this->available_units = $property->available_units;
+            $this->landlord_id = $property->landlord_id;
+            $this->agent_id = $property->agent_id;
+            $this->status = $property->status;
         }
     }
 
@@ -128,7 +136,8 @@ class PropertyForm extends Component
             $data['images'] = array_merge($this->images, $imagePaths);
         }
 
-        if ($this->property->exists) {
+        // dd($this->property);
+        if ($this->property) {
             $this->property->update($data);
             session()->flash('message', 'Property updated successfully.');
         } else {
@@ -150,6 +159,14 @@ class PropertyForm extends Component
     {
         unset($this->images[$index]);
         $this->images = array_values($this->images);
+    }
+
+    public function cancel()
+    {
+        if ($this->property) {
+            return redirect()->route('properties.show', $this->property);
+        }
+        return redirect()->route('properties.index');
     }
 
     public function render()

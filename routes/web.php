@@ -34,6 +34,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Leases\LeaseTemplateController;
+use App\Livewire\Properties\PropertyShow;
 
 Route::get('/', function () {
     return view('welcome');
@@ -64,13 +65,19 @@ Route::middleware('auth')->group(function () {
 
     // Properties Module
     Route::prefix('properties')->name('properties.')->group(function () {
+        
         Route::get('/', function () {
             return view('properties.index');
         })->name('index');
         Route::get('/create', function () {
             return view('properties.create');
         })->name('create');
+        
         Route::get('/{property}/edit', PropertyForm::class)->name('edit');
+
+        Route::get('/{property}/show', PropertyShow::class)->name('show');
+
+
     });
 
     // Billing Module

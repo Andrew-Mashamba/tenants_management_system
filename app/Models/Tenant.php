@@ -36,6 +36,11 @@ class Tenant extends Model
         return $this->belongsTo(Property::class);
     }
 
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class);
+    }
+
     public function leases(): HasMany
     {
         return $this->hasMany(Lease::class);

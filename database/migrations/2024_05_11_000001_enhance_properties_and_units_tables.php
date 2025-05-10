@@ -9,12 +9,15 @@ return new class extends Migration
     public function up()
     {
         Schema::table('properties', function (Blueprint $table) {
-            $table->enum('property_type', ['apartment', 'house', 'commercial', 'land'])
-                ->default('apartment')
+            // $table->enum('property_type', ['apartment', 'house', 'commercial', 'land'])
+            $table->enum('property_type', ['residential', 'commercial', 'mixed'])
+                ->default('residential')
                 ->after('name');
 
-            $table->enum('status', ['active', 'inactive', 'maintenance'])
-                ->default('active')
+
+            // $table->enum('status', ['active', 'inactive', 'maintenance', ''])
+            $table->enum('status', ['available', 'occupied', 'maintenance', 'reserved'])
+                ->default('available')
                 ->after('property_type');
 
             $table->json('amenities')
@@ -31,10 +34,11 @@ return new class extends Migration
         });
 
         Schema::table('units', function (Blueprint $table) {
-            $table->enum('unit_type', ['apartment', 'office', 'retail', 'warehouse', 'other'])
+            // $table->enum('unit_type', ['apartment', 'office', 'retail', 'warehouse', 'other'])
+            $table->enum('unit_type', ['apartment','house','condo','townhouse','villa','land','office','retail','industrial','hotel','other'])
                 ->default('apartment')
                 ->after('name');
-
+            
             $table->json('amenities')
                 ->nullable()
                 ->after('features');

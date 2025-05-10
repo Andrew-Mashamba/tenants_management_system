@@ -16,8 +16,10 @@ class Unit extends Model
     protected $fillable = [
         'property_id',
         'unit_number',
+        'unit_type',
         'name',
         'type',
+        'unit_id',
         'status',
         'rent_amount',
         'security_deposit',
@@ -26,10 +28,24 @@ class Unit extends Model
         'bathrooms',
         'description',
         'features',
+        'amenities',
+        // 'floor',
+        // 'size',
+        // 'availability_status',
+        // 'available_from',
+        // 'availability_notes',
+        'tenant_id',
+        'images',
+        // 'last_maintenance_date',
+        // 'maintenance_notes'
     ];
 
     protected $casts = [
         'features' => 'array',
+        'amenities' => 'array',
+        'images' => 'array',
+        // 'available_from' => 'datetime',
+        // 'last_maintenance_date' => 'datetime'
     ];
 
     public function property(): BelongsTo

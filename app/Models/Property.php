@@ -16,11 +16,14 @@ class Property extends Model
     protected $fillable = [
         'name',
         'address',
+        'property_type',
         'city',
         'state',
         'postal_code',
         'country',
         'description',
+        'amenities',
+        'images',
         'type',
         'status',
         'total_units',
@@ -31,12 +34,15 @@ class Property extends Model
         'timezone',
         'document_categories',
         'landlord_id',
-        'agent_id'
+        'agent_id',
+        // 'latitude',
+        // 'longitude',
     ];
 
     protected $casts = [
         'settings' => 'array',
-        'document_categories' => 'array'
+        'document_categories' => 'array',
+        'amenities' => 'array'
     ];
 
     public function landlord(): BelongsTo

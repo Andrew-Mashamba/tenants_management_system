@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('phone');
-            $table->foreignId('property_id')->constrained()->onDelete('cascade');
+            // $table->foreignId('property_id')->constrained()->onDelete('cascade');
             $table->string('address');
             $table->string('city');
             $table->string('state');

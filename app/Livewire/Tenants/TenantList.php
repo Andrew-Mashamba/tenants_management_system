@@ -40,9 +40,9 @@ class TenantList extends Component
                         ->orWhere('phone', 'like', '%' . $this->search . '%');
                 });
             })
-            ->when($this->property_id, function ($query) {
-                $query->where('property_id', $this->property_id);
-            })
+            // ->when($this->property_id, function ($query) {
+            //     $query->where('property_id', $this->property_id);
+            // })
             ->orderBy($this->sortField, $this->sortDirection);
 
         $tenants = $query->paginate(10);

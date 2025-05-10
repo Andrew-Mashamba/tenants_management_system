@@ -30,7 +30,7 @@
                             @error('phone') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
 
-                        <div class="col-span-6 sm:col-span-3">
+                        {{-- <div class="col-span-6 sm:col-span-3">
                             <label for="property_id" class="block text-sm font-medium text-gray-700">Property</label>
                             <select wire:model="property_id" id="property_id" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                 <option value="">Select a Property</option>
@@ -39,7 +39,7 @@
                                 @endforeach
                             </select>
                             @error('property_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
+                        </div> --}}
 
                         <div class="col-span-6">
                             <label for="address" class="block text-sm font-medium text-gray-700">Address</label>

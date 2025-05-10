@@ -16,7 +16,7 @@ class Tenant extends Model
         'name',
         'email',
         'phone',
-        'property_id',
+        // 'property_id',  
         'address',
         'city',
         'state',
@@ -34,6 +34,11 @@ class Tenant extends Model
     public function property(): BelongsTo
     {
         return $this->belongsTo(Property::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function documents(): HasMany

@@ -23,14 +23,14 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="ml-4">
+                            {{-- <div class="ml-4">
                                 <select wire:model.live="propertyId" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                                     <option value="">All Properties</option>
                                     @foreach($properties as $property)
                                         <option value="{{ $property->id }}">{{ $property->name }}</option>
                                     @endforeach
                                 </select>
-                            </div>
+                            </div>--}}
                         </div>
                     </div>
                     <table class="min-w-full divide-y divide-gray-200">
@@ -84,10 +84,10 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    {{-- <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm text-gray-900">{{ $tenant->property->name }}</div>
                                         <div class="text-sm text-gray-500">{{ $tenant->property->address }}</div>
-                                    </td>
+                                    </td>--}}
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm text-gray-900">{{ $tenant->phone }}</div>
                                         <div class="text-sm text-gray-500">{{ $tenant->emergency_contact }}</div>

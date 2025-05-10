@@ -7,6 +7,10 @@ use App\Models\Property;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TenantCreated;
 
 class TenantForm extends Component
 {
@@ -122,7 +126,7 @@ class TenantForm extends Component
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:tenants,email' . ($this->tenant ? ',' . $this->tenant->id : ''),
             'phone' => 'required|string|max:20',
-            'property_id' => 'required|exists:properties,id',
+            // 'property_id' => 'required|exists:properties,id',
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'state' => 'required|string|max:255',
@@ -138,6 +142,22 @@ class TenantForm extends Component
             $this->tenant->update($validated);
         } else {
             $this->tenant = Tenant::create($validated);
+
+            //create a user for the tenant and assign the tenant role
+            $user = User::create([
+                'name' => $this->name,
+                'email' => $this->email,
+                'password' => Hash::make('password'),
+            ]);
+            $user->assignRole('tenant');
+
+            //email the tenants credentials, use the template email blade view
+            // Mail::to($this->email)->send(new TenantCreated($user));
+            // Mail::send('emails.tenants.created', ['user' => $user], function ($message) use ($user) {
+            //     $message->to($user->email)
+            //             ->subject('Your Tenant Account Has Been Created');
+            // });
+
         }
 
         // Handle document uploads

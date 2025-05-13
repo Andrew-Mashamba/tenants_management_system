@@ -70,7 +70,7 @@ return new class extends Migration
                 'unit_type',
                 'amenities',
                 'last_maintenance_date',
-                'maintenance_notes'
+                'maintenance_notes',
             ]);
         });
     }

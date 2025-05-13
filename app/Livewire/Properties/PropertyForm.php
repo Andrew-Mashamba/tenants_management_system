@@ -7,7 +7,7 @@ use App\Models\User;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Unit;
-use Illuminate\Support\Facades\DB;
+
 class PropertyForm extends Component
 {
     use WithFileUploads;
@@ -100,13 +100,13 @@ class PropertyForm extends Component
         }
 
         $this->validate([
-            // 'new_unit_type' => 'required|string|in:' . implode(',', $validTypes),
             'new_unit_type' => 'required|string|in:apartment,house,condo,townhouse,villa,land,office,retail,industrial,hotel,other',
             'new_unit_status' => 'required|string|in:occupied,available,maintenance,reserved',
             'new_unit_amount' => 'required|integer|min:1',
             'new_unit_description' => 'required|string|max:255',
             'new_unit_amenities' => 'nullable|array',
         ]);
+
 
         // Create individual rows for each unit number
         for ($i = 1; $i <= $this->new_unit_amount; $i++) {
@@ -117,6 +117,7 @@ class PropertyForm extends Component
                 'status' => $this->new_unit_status,
                 'description' => $this->new_unit_description,
                 'unit_number' => $i,
+                // 'unit_number' => 1,
                 'amenities' => $this->new_unit_amenities,
                 'unit_id' => 'UN' . str_pad(mt_rand(0, 9999), 4, '0', STR_PAD_LEFT),
             ];
@@ -208,11 +209,12 @@ class PropertyForm extends Component
             
             // Load existing units
            
-            $this->unit_list = $this->property->units->map(function ($unit) {
+            $this->unit_list = $property->units->map(function($unit) {
                 return [
                     'id' => $unit->id, // critical for update
                     'type' => $unit->type,
                     'unit_type' => $unit->unit_type,
+                    // 'new_unit_type' => $unit->unit_type,
                     'status' => $unit->status,
                     'description' => $unit->description,
                     'unit_number' => $unit->unit_number,
@@ -220,7 +222,6 @@ class PropertyForm extends Component
                     'unit_id' => $unit->unit_id, // for Livewire UI tracking only
                 ];
             })->toArray();
-            
 
             // dd($this->unit_list);
         }
@@ -229,79 +230,138 @@ class PropertyForm extends Component
     public function save()
     {
         $this->validate();
-    
-        DB::beginTransaction();
-    
-        try {
-            // Create or update the property
-            $propertyData = [
-                'name' => $this->name,
-                'description' => $this->description,
-                'address' => $this->address,
-                'city' => $this->city,
-                'state' => $this->state,
-                'country' => $this->country,
-                'postal_code' => $this->postal_code,
-                'landlord_id' => $this->landlord_id,
-                'agent_id' => $this->agent_id,
-                'property_type' => $this->property_type,
-                'total_units' => $this->total_units,
-                'available_units' => $this->available_units,
-                'year_built' => $this->year_built,
-                'amenities' => $this->amenities,
-                'settings' => $this->settings,
-                'default_currency' => $this->default_currency,
-                'timezone' => $this->timezone,
-                'document_categories' => $this->document_categories,
+
+        $data = [
+            'name' => $this->name,
+            'description' => $this->description,
+            'address' => $this->address,
+            'city' => $this->city,
+            'state' => $this->state,
+            'country' => $this->country,
+            'postal_code' => $this->postal_code,
+            'landlord_id' => $this->landlord_id,
+            'agent_id' => $this->agent_id,
+            'property_type' => $this->property_type,
+            'total_units' => $this->total_units,
+            'available_units' => $this->available_units,
+            'year_built' => $this->year_built,
+            'amenities' => $this->amenities,
+            'settings' => $this->settings,
+            'default_currency' => $this->default_currency,
+            'timezone' => $this->timezone,
+            'document_categories' => $this->document_categories,
+        ];
+
+        if ($this->newImages) {
+            $imagePaths = [];
+            foreach ($this->newImages as $image) {
+                $path = $image->store('properties', 'public');
+                $imagePaths[] = $path;
+            }
+            $data['images'] = array_merge($this->images, $imagePaths);
+        }
+
+        if ($this->property) {
+            $this->property->update($data);
+            
+            // Update or create units
+            // foreach ($this->unit_list as $unitData) {
+            //     $unitData['property_id'] = $this->property->id;
+                
+            //     // Prepare unit data
+            //     $unitUpdateData = [
+            //         'property_id' => $this->property->id,
+            //         'type' => $unitData['type'],
+            //         'unit_number' => $unitData['amount'],
+            //         'unit_id' => 'UN-' . $unitData['unit_id'],
+            //         'name' => $unitData['type'] . ' ' . $unitData['unit_id'],
+            //         'unit_type' => $unitData['type'],
+            //         'description' => $unitData['description'],
+            //         'status' => $unitData['status'],
+            //         'availability_status' => $unitData['status'],
+            //         'amenities' => $unitData['amenities'],
+            //         'created_at' => now(),
+            //         'updated_at' => now(),
+            //     ];
+
+            //     // If creating new unit, add created_at
+            //     if (!isset($unitData['unit_id'])) {
+            //         $unitUpdateData['created_at'] = now();
+            //     }
+
+            //     Unit::updateOrCreate(
+            //         [
+            //             'property_id' => $this->property->id,
+            //             'unit_id' => 'UN-' . $unitData['unit_id'],
+            //         ],
+            //         $unitUpdateData
+            //     );
+            // }
+
+            // Delete units that are no longer in the list
+            // $currentUnitNumbers = collect($this->unit_list)->pluck('amount')->toArray();
+            // Unit::where('property_id', $this->property->id)
+            //     ->whereNotIn('unit_number', $currentUnitNumbers)
+            //     ->delete();
+
+            // session()->flash('message', 'Property updated successfully.');
+        } else {
+            $this->property = Property::create($data);
+            
+            // Create new units
+            // foreach ($this->unit_list as $unitData) {
+            //     Unit::create([
+            //         'property_id' => $this->property->id,
+            //         'type' => $unitData['type'],
+            //         'unit_number' => $unitData['amount'],
+            //         'unit_id' => 'UN-' . $unitData['unit_id'],
+            //         'name' => $unitData['type'] . ' ' . $unitData['unit_id'],
+            //         'unit_type' => $unitData['type'],
+            //         'description' => $unitData['description'],
+            //         'status' => $unitData['status'],
+            //         'availability_status' => $unitData['status'],
+            //         'amenities' => $unitData['amenities'],
+            //         'created_at' => now(),
+            //         'updated_at' => now(),
+            //     ]);
+            // }
+            // session()->flash('message', 'Property created successfully.');
+        }
+
+                    // Keep track of existing unit IDs for deletion detection
+        $existingUnitIds = [];
+
+        foreach ($this->unit_list as $unitData) {
+            $unitUpdateData = [
+                'property_id' => $this->property->id,
+                'type' => $unitData['type'],
+                'unit_type' => $unitData['unit_type'],
+                // 'name' => $unitData['type'] . '-' . $unitData['unit_number'],
+                'name' => $unitData['unit_type'] . '-' . $unitData['description'],
+                'status' => $unitData['status'],
+                'description' => $unitData['description'],
+                'unit_number' => $unitData['unit_number'],
+                'amenities' => $unitData['amenities'],
+                'unit_id' => $unitData['unit_id'],
             ];
 
-            if ($this->property) {
-                $this->property->update($propertyData);
+            if (!empty($unitData['id'])) {
+                // Update existing unit
+                Unit::where('id', $unitData['id'])->update($unitUpdateData);
+                $existingUnitIds[] = $unitData['id'];
             } else {
-                $this->property = Property::create($propertyData);
+                // Create new unit
+                $newUnit = Unit::create($unitUpdateData);
+                $existingUnitIds[] = $newUnit->id;
             }
-    
-            // Keep track of existing unit IDs for deletion detection
-            $existingUnitIds = [];
-    
-            foreach ($this->unit_list as $unitData) {
-                $unitUpdateData = [
-                    'property_id' => $this->property->id,
-                    'type' => $unitData['type'],
-                    'unit_type' => $unitData['unit_type'],
-                    'name' => $unitData['type'] . '-' . $unitData['unit_number'],
-                    'status' => $unitData['status'],
-                    'description' => $unitData['description'],
-                    'unit_number' => $unitData['unit_number'],
-                    'amenities' => $unitData['amenities'],
-                    'unit_id' => $unitData['unit_id'],
-                ];
-    
-                if (!empty($unitData['id'])) {
-                    // Update existing unit
-                    Unit::where('id', $unitData['id'])->update($unitUpdateData);
-                    $existingUnitIds[] = $unitData['id'];
-                } else {
-                    // Create new unit
-                    $newUnit = Unit::create($unitUpdateData);
-                    $existingUnitIds[] = $newUnit->id;
-                }
-            }
-    
-            // Delete removed units
-            Unit::where('property_id', $this->property->id)
-                ->whereNotIn('id', $existingUnitIds)
-                ->delete();
-    
-            DB::commit();
-    
-            session()->flash('success', 'Property and units saved successfully.');
-    
-            return redirect()->route('properties.index');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            session()->flash('error', 'Error saving property: ' . $e->getMessage());
         }
+
+        // Delete removed units
+        Unit::where('property_id', $this->property->id)
+            ->whereNotIn('id', $existingUnitIds)
+            ->delete();
+
+        return redirect()->route('properties.index');
     }
 
     public function removeImage($index)

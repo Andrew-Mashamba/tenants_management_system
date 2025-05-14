@@ -61,3 +61,18 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/{lock}/logs', [SmartLockController::class, 'logs']);
     });
 });
+
+// Document Upload Form API Routes
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/properties', function () {
+        return App\Models\Property::select('id', 'name')->get();
+    });
+    
+    Route::get('/leases', function () {
+        return App\Models\Lease::select('id', 'title')->get();
+    });
+    
+    Route::get('/tenants', function () {
+        return App\Models\Tenant::select('id', 'name')->get();
+    });
+});

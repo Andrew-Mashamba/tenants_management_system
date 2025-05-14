@@ -39,6 +39,10 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Leases\LeaseTemplateController;
 use App\Livewire\Properties\PropertyShow;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Http\Request;
+use Illuminate\Auth\Access\AuthorizationException;
+use App\Http\Controllers\Communication\MessageController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -147,9 +151,13 @@ Route::middleware('auth')->group(function () {
 
     // Reports Module
     Route::prefix('reports')->name('reports.')->group(function () {
-        Route::get('/', function () {
-            return view('reports.index');
-        })->name('index');
+        Route::get('/', [App\Http\Controllers\Reports\ReportController::class, 'index'])->name('index');
+        Route::get('/create', function () {
+            return view('reports.create');
+        })->name('create');
+        Route::post('/generate', [App\Http\Controllers\Reports\ReportController::class, 'generate'])->name('generate');
+        Route::get('/{report}', [App\Http\Controllers\Reports\ReportController::class, 'show'])->name('show');
+        Route::get('/{report}/download', [App\Http\Controllers\Reports\ReportController::class, 'download'])->name('download');
     });
 
     // Documents Module
@@ -210,6 +218,56 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['auth'])->group(function () {
         Route::resource('lease-templates', LeaseTemplateController::class);
     });
+
+
+    // Documents Routes
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/documents', [App\Http\Controllers\Documents\DocumentController::class, 'index'])->name('documents.index');
+        Route::get('/documents/create', [App\Http\Controllers\Documents\DocumentController::class, 'create'])->name('documents.create');
+        Route::post('/documents', [App\Http\Controllers\Documents\DocumentController::class, 'store'])->name('documents.store');
+        Route::get('/documents/{document}', [App\Http\Controllers\Documents\DocumentController::class, 'show'])->name('documents.show');
+        Route::get('/documents/{document}/download', [App\Http\Controllers\Documents\DocumentController::class, 'download'])->name('documents.download');
+        Route::delete('/documents/{document}', [App\Http\Controllers\Documents\DocumentController::class, 'destroy'])->name('documents.destroy');
+    });
+
+    // Reports Routes
+    Route::get('/reports', [App\Http\Controllers\Reports\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/create', function () {
+        return view('reports.create');
+    })->name('reports.create');
+    Route::post('/reports/generate', [App\Http\Controllers\Reports\ReportController::class, 'generate'])->name('reports.generate');
+    Route::get('/reports/{report}', [App\Http\Controllers\Reports\ReportController::class, 'show'])->name('reports.show');
+    Route::get('/reports/{report}/download', [App\Http\Controllers\Reports\ReportController::class, 'download'])->name('reports.download');
+
+
+    // Communication Routes
+
+    Route::get('/communication', function () {
+        return view('communication.index');
+    })->name('communication.index');
+    
+    Route::prefix('communication/messages')->name('communication.messages.')->group(function () {
+        Route::get('/', [MessageController::class, 'index'])->name('index');
+        Route::get('/create', [MessageController::class, 'create'])->name('create');
+        Route::post('/', [MessageController::class, 'store'])->name('store');
+        Route::get('/{message}', [MessageController::class, 'show'])->name('show');
+        Route::post('/{message}/read', [MessageController::class, 'markAsRead'])->name('read');
+        Route::post('/{message}/archive', [MessageController::class, 'archive'])->name('archive');
+        Route::delete('/{message}', [MessageController::class, 'destroy'])->name('destroy');
+    });
+    
+    Route::get('/communication/notifications', function () {
+        return view('communication.notifications');
+    })->name('communication.notifications');
+
+
+
+
+
+
+
+
+
 });
 
 // Password Reset Routes
@@ -223,3 +281,61 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/reset-password', [PasswordResetController::class, 'reset'])
         ->name('password.update');
 });
+
+// Email Verification Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/email/verify', function () {
+        return view('auth.verify-email');
+    })->name('verification.notice');
+
+    Route::get('/email/verify/{id}/{hash}', function (Request $request) {
+        if (!hash_equals((string) $request->route('hash'), sha1($request->user()->getEmailForVerification()))) {
+            throw new AuthorizationException;
+        }
+
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->intended(route('dashboard').'?verified=1');
+        }
+
+        if ($request->user()->markEmailAsVerified()) {
+            event(new Verified($request->user()));
+        }
+
+        return redirect()->intended(route('dashboard').'?verified=1');
+    })->middleware(['signed'])->name('verification.verify');
+
+    Route::post('/email/verification-notification', function (Request $request) {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->intended(route('dashboard'));
+        }
+
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('status', 'verification-link-sent');
+    })->middleware(['throttle:6,1'])->name('verification.send');
+});
+
+// Communication Routes
+// Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
+//     Route::get('/communication', function () {
+//         return view('communication.index');
+//     })->name('communication.index');
+    
+//     Route::prefix('communication/messages')->name('communication.messages.')->group(function () {
+//         Route::get('/', [MessageController::class, 'index'])->name('index');
+//         Route::get('/create', [MessageController::class, 'create'])->name('create');
+//         Route::post('/', [MessageController::class, 'store'])->name('store');
+//         Route::get('/{message}', [MessageController::class, 'show'])->name('show');
+//         Route::post('/{message}/read', [MessageController::class, 'markAsRead'])->name('read');
+//         Route::post('/{message}/archive', [MessageController::class, 'archive'])->name('archive');
+//         Route::delete('/{message}', [MessageController::class, 'destroy'])->name('destroy');
+//     });
+    
+//     Route::get('/communication/notifications', function () {
+//         return view('communication.notifications');
+//     })->name('communication.notifications');
+// });
+
+
+
+

@@ -6,6 +6,8 @@ use App\Models\PropertyDocument;
 use App\Policies\PropertyDocumentPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use App\Models\Report;
+use App\Policies\ReportPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -16,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         PropertyDocument::class => PropertyDocumentPolicy::class,
+        Report::class => ReportPolicy::class,
     ];
 
     /**

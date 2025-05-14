@@ -13,7 +13,7 @@
         </div>
 
         <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-            <livewire:maintenance.maintenance-request-form :request="$request" />
+            <livewire:maintenance.maintenance-request-form :maintenanceRequest="$request" />
         </div>
     </div>
 </div>

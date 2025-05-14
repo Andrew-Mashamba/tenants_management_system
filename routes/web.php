@@ -16,6 +16,7 @@ use App\Livewire\Payments\PaymentForm;
 use App\Livewire\Payments\PaymentShow;
 use App\Livewire\Maintenance\MaintenanceRequestList;
 use App\Livewire\Maintenance\MaintenanceRequestForm;
+use App\Livewire\Maintenance\MaintenanceRequestShow;
 use App\Livewire\Maintenance\VendorList;
 use App\Livewire\Maintenance\VendorForm;
 use App\Livewire\Communication\MessageList;
@@ -126,8 +127,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/', function () {
             return view('maintenance.index');
         })->name('index');
+        Route::get('/requests', MaintenanceRequestList::class)->name('requests.index');
         Route::get('/requests/create', MaintenanceRequestForm::class)->name('requests.create');
-        Route::get('/requests/{request}/edit', MaintenanceRequestForm::class)->name('requests.edit');
+        Route::get('/requests/{maintenanceRequest}/edit', MaintenanceRequestForm::class)->name('requests.edit');
+        Route::get('/requests/{maintenanceRequest}/show', MaintenanceRequestShow::class)->name('requests.show');
         Route::get('/vendors', VendorList::class)->name('vendors.index');
         Route::get('/vendors/create', VendorForm::class)->name('vendors.create');
         Route::get('/vendors/{vendor}/edit', VendorForm::class)->name('vendors.edit');

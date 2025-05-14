@@ -56,7 +56,7 @@
                             </div>
                             <div class="text-right">
                                 <div class="text-sm font-medium text-gray-900">
-                                    {{ $request->tenant->name }}
+                                    {{ $request->tenant?->name ?? 'Unassigned With Tenant' }}
                                 </div>
                                 <div class="text-sm text-gray-500">
                                     {{ $request->requested_date->format('M d, Y') }}
@@ -73,7 +73,7 @@
                                 </div>
                             </div>
                             <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                <a href="{{ route('maintenance-requests.show', $request) }}" class="text-indigo-600 hover:text-indigo-900">
+                                <a href="{{ route('maintenance.requests.show', $request) }}" class="text-indigo-600 hover:text-indigo-900">
                                     View Details
                                 </a>
                             </div>

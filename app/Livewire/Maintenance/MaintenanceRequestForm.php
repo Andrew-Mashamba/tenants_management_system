@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Vendor;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Carbon\Carbon;
 
 class MaintenanceRequestForm extends Component
 {
@@ -25,12 +26,16 @@ class MaintenanceRequestForm extends Component
     public $status;
     public $scheduled_date;
     public $estimated_cost;
+    public $requested_date;
+    public $completed_date;
+    public $assigned_to;
+
     public $actual_cost;
     public $resolution_notes;
     public $attachments = [];
     public $status_notes;
     public $status_attachments = [];
-
+    public $notes;
     public $units = [];
 
     protected $rules = [
@@ -50,12 +55,17 @@ class MaintenanceRequestForm extends Component
         'attachments.*' => 'file|max:10240', // 10MB max
         'status_notes' => 'nullable|string',
         'status_attachments' => 'array',
-        'status_attachments.*' => 'file|max:10240' // 10MB max
+        'status_attachments.*' => 'file|max:10240', // 10MB max
+        'requested_date' => 'required|date',
+        'completed_date' => 'nullable|date',
+        'assigned_to' => 'exists:users,id',
+        'notes' => 'nullable|string',
     ];
 
     public function mount($maintenanceRequest = null)
     {
         if ($maintenanceRequest) {
+            $maintenanceRequest = MaintenanceRequest::find($maintenanceRequest);
             $this->maintenanceRequest = $maintenanceRequest;
             $this->property_id = $maintenanceRequest->property_id;
             $this->unit_id = $maintenanceRequest->unit_id;
@@ -65,14 +75,22 @@ class MaintenanceRequestForm extends Component
             $this->description = $maintenanceRequest->description;
             $this->priority = $maintenanceRequest->priority;
             $this->status = $maintenanceRequest->status;
-            $this->scheduled_date = $maintenanceRequest->scheduled_date?->format('Y-m-d\TH:i');
+            $this->scheduled_date = $maintenanceRequest->scheduled_date ? $maintenanceRequest->scheduled_date->format('Y-m-d') : null;
             $this->estimated_cost = $maintenanceRequest->estimated_cost;
             $this->actual_cost = $maintenanceRequest->actual_cost;
             $this->resolution_notes = $maintenanceRequest->resolution_notes;
             $this->attachments = $maintenanceRequest->attachments ?? [];
+            $this->requested_date = $maintenanceRequest->requested_date ? $maintenanceRequest->requested_date->format('Y-m-d') : null;
+            $this->completed_date = $maintenanceRequest->completed_date ? $maintenanceRequest->completed_date->format('Y-m-d') : null;
+            $this->assigned_to = $maintenanceRequest->assigned_to;
+            $this->notes = $maintenanceRequest->notes;
+
+            // Load units for the selected property
+            $this->loadUnits();
         } else {
             $this->status = 'pending';
             $this->priority = 'medium';
+            $this->requested_date = now()->format('Y-m-d');
         }
     }
 
@@ -109,17 +127,21 @@ class MaintenanceRequestForm extends Component
         $data = [
             'property_id' => $this->property_id,
             'unit_id' => $this->unit_id,
-            'tenant_id' => $this->tenant_id,
+            'tenant_id' => $this->tenant_id ?: null,
             'vendor_id' => $this->vendor_id,
             'title' => $this->title,
             'description' => $this->description,
             'priority' => $this->priority,
             'status' => $this->status,
-            'scheduled_date' => $this->scheduled_date,
+            'scheduled_date' => $this->scheduled_date ? Carbon::parse($this->scheduled_date)->format('Y-m-d') : null,
             'estimated_cost' => $this->estimated_cost,
             'actual_cost' => $this->actual_cost,
             'resolution_notes' => $this->resolution_notes,
-            'attachments' => $this->attachments
+            'attachments' => $this->attachments,
+            'requested_date' => $this->requested_date ? Carbon::parse($this->requested_date)->format('Y-m-d') : null,
+            'completed_date' => $this->completed_date ? Carbon::parse($this->completed_date)->format('Y-m-d') : null,
+            'assigned_to' => $this->assigned_to,
+            'notes' => $this->notes,
         ];
 
         if ($this->maintenanceRequest) {
@@ -144,7 +166,7 @@ class MaintenanceRequestForm extends Component
             'message' => $message
         ]);
 
-        return redirect()->route('maintenance-requests.show', $this->maintenanceRequest);
+        return redirect()->route('maintenance.requests.show', $this->maintenanceRequest);
     }
 
     public function getPropertiesProperty()
@@ -174,6 +196,11 @@ class MaintenanceRequestForm extends Component
     public function getVendorsProperty()
     {
         return Vendor::active()->get();
+    }
+
+    public function cancel()
+    {
+        return redirect()->route('maintenance.index');
     }
 
     public function render()

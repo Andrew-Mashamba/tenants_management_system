@@ -5,10 +5,12 @@ namespace App\Livewire\Properties;
 use App\Models\Property;
 use Livewire\Component;
 use Livewire\WithPagination;
-
+use Livewire\Attributes\Title;
 class PropertyList extends Component
 {
     use WithPagination;
+
+    #[Title('Property List')]
 
     public $search = '';
     public $status = '';

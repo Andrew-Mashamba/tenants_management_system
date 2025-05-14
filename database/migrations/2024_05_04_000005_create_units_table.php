@@ -16,10 +16,11 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('floor')->nullable();
             $table->decimal('size', 10, 2)->nullable(); // in square meters/feet
-            $table->integer('bedrooms')->nullable();
-            $table->integer('bathrooms')->nullable();
-            $table->decimal('rent_amount', 10, 2)->nullable();
-            $table->decimal('deposit_amount', 10, 2);
+            // $table->integer('bedrooms')->nullable();
+            // $table->integer('bathrooms')->nullable();
+            // $table->decimal('rent_amount', 10, 2)->nullable();
+            $table->decimal('unit_price', 10, 2)->nullable();
+            // $table->decimal('deposit_amount', 10, 2);
             $table->enum('status', ['available', 'occupied', 'maintenance', 'reserved'])->default('available');
             $table->foreignId('tenant_id')->nullable()->constrained('users')->onDelete('set null');
             $table->json('features')->nullable();

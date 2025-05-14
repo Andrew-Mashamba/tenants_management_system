@@ -7,10 +7,15 @@ use App\Models\User;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Unit;
+use Livewire\Attributes\Title;
+use Illuminate\Support\Facades\Storage;
 
 class PropertyForm extends Component
 {
+
     use WithFileUploads;
+
+    #[Title('Property Form')]
 
     public $property;
     
@@ -33,6 +38,7 @@ class PropertyForm extends Component
     public $total_units = 0;
     public $available_units = 0;
     public $year_built;
+    public $new_unit_price = '';
     public $amenities = [];
     public $images = [];
     public $newImages = [];
@@ -105,6 +111,7 @@ class PropertyForm extends Component
             'new_unit_amount' => 'required|integer|min:1',
             'new_unit_description' => 'required|string|max:255',
             'new_unit_amenities' => 'nullable|array',
+            'new_unit_price' => 'required|numeric|min:0',
         ]);
 
 
@@ -118,6 +125,7 @@ class PropertyForm extends Component
                 'description' => $this->new_unit_description,
                 'unit_number' => $i,
                 // 'unit_number' => 1,
+                'unit_price' => $this->new_unit_price,
                 'amenities' => $this->new_unit_amenities,
                 'unit_id' => 'UN' . str_pad(mt_rand(0, 9999), 4, '0', STR_PAD_LEFT),
             ];
@@ -131,6 +139,7 @@ class PropertyForm extends Component
         $this->new_unit_amount = '';
         $this->new_unit_description = '';
         $this->new_unit_amenities = [];
+        $this->new_unit_price = '';
     }
 
     public function removeUnit($index)
@@ -154,7 +163,28 @@ class PropertyForm extends Component
         }
     }
 
-    public function rules()
+    public function removeImage($index)
+    {
+        if (isset($this->images[$index])) {
+            // Delete the file from storage
+            if (Storage::disk('public')->exists($this->images[$index])) {
+                Storage::disk('public')->delete($this->images[$index]);
+            }
+            // Remove from array
+            unset($this->images[$index]);
+            $this->images = array_values($this->images); // Re-index array
+        }
+    }
+
+    public function removeNewImage($index)
+    {
+        if (isset($this->newImages[$index])) {
+            unset($this->newImages[$index]);
+            $this->newImages = array_values($this->newImages); // Re-index array
+        }
+    }
+
+    protected function rules()
     {
         $rules = [
             'name' => 'required|string|max:255',
@@ -171,13 +201,13 @@ class PropertyForm extends Component
             'available_units' => 'required|integer|min:0|lte:total_units',
             'year_built' => 'nullable|integer|min:1800|max:' . (date('Y') + 1),
             'amenities' => 'array',
-            'newImages.*' => 'nullable|image|max:10240',
+            'newImages.*' => 'nullable|image|max:10240', // 10MB max
             'settings' => 'nullable|array',
             'default_currency' => 'required|string|size:3',
             'timezone' => 'required|string|max:255',
             'document_categories' => 'nullable|array',
             'images' => 'nullable|array',
-            'images.*' => 'image|max:1024',
+            'images.*' => 'string',
         ];
 
         return $rules;
@@ -208,13 +238,13 @@ class PropertyForm extends Component
             $this->agent_id = $property->agent_id;
             
             // Load existing units
-           
             $this->unit_list = $property->units->map(function($unit) {
                 return [
                     'id' => $unit->id, // critical for update
                     'type' => $unit->type,
                     'unit_type' => $unit->unit_type,
-                    // 'new_unit_type' => $unit->unit_type,
+                    'unit_price' => $unit->unit_price,
+                    'new_unit_type' => $unit->unit_type,
                     'status' => $unit->status,
                     'description' => $unit->description,
                     'unit_number' => $unit->unit_number,
@@ -222,8 +252,12 @@ class PropertyForm extends Component
                     'unit_id' => $unit->unit_id, // for Livewire UI tracking only
                 ];
             })->toArray();
-
-            // dd($this->unit_list);
+        } else {
+            // Initialize empty arrays for new properties
+            $this->images = [];
+            $this->newImages = [];
+            $this->amenities = [];
+            $this->unit_list = [];
         }
     }
 
@@ -252,13 +286,17 @@ class PropertyForm extends Component
             'document_categories' => $this->document_categories,
         ];
 
+        // Handle images
         if ($this->newImages) {
             $imagePaths = [];
             foreach ($this->newImages as $image) {
                 $path = $image->store('properties', 'public');
                 $imagePaths[] = $path;
             }
-            $data['images'] = array_merge($this->images, $imagePaths);
+            // Only merge if $this->images is an array
+            $data['images'] = is_array($this->images) ? array_merge($this->images, $imagePaths) : $imagePaths;
+        } else {
+            $data['images'] = is_array($this->images) ? $this->images : [];
         }
 
         if ($this->property) {
@@ -328,7 +366,7 @@ class PropertyForm extends Component
             // session()->flash('message', 'Property created successfully.');
         }
 
-                    // Keep track of existing unit IDs for deletion detection
+        // Keep track of existing unit IDs for deletion detection
         $existingUnitIds = [];
 
         foreach ($this->unit_list as $unitData) {
@@ -336,6 +374,7 @@ class PropertyForm extends Component
                 'property_id' => $this->property->id,
                 'type' => $unitData['type'],
                 'unit_type' => $unitData['unit_type'],
+                'unit_price' => $unitData['unit_price'],
                 // 'name' => $unitData['type'] . '-' . $unitData['unit_number'],
                 'name' => $unitData['unit_type'] . '-' . $unitData['description'],
                 'status' => $unitData['status'],
@@ -362,12 +401,6 @@ class PropertyForm extends Component
             ->delete();
 
         return redirect()->route('properties.index');
-    }
-
-    public function removeImage($index)
-    {
-        unset($this->images[$index]);
-        $this->images = array_values($this->images);
     }
 
     public function cancel()

@@ -42,7 +42,8 @@ class Property extends Model
     protected $casts = [
         'settings' => 'array',
         'document_categories' => 'array',
-        'amenities' => 'array'
+        'amenities' => 'array',
+        'images' => 'array',
     ];
 
     public function landlord(): BelongsTo

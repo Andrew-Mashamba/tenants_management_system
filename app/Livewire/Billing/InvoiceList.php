@@ -32,7 +32,7 @@ class InvoiceList extends Component
     public function render()
     {
         $query = Invoice::query()
-            ->with(['tenant', 'lease.unit'])
+            ->with(['tenant', 'lease'])
             ->when($this->search, function ($query) {
                 $query->where('invoice_number', 'like', '%' . $this->search . '%')
                     ->orWhereHas('tenant', function ($q) {
@@ -53,6 +53,14 @@ class InvoiceList extends Component
             });
 
         $invoices = $query->latest()->paginate(10);
+
+        // Load units for each lease
+        foreach ($invoices as $invoice) {
+            if ($invoice->lease) {
+                $invoice->lease->setRelation('units', $invoice->lease->units);
+            }
+        }
+
         $tenants = \App\Models\User::whereHas('roles', function ($query) {
             $query->where('slug', 'tenant');
         })->get();

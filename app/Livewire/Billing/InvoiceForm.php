@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Lease;
 use App\Models\User;
+use App\Models\Unit;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
@@ -36,6 +37,8 @@ class InvoiceForm extends Component
         'items.*.quantity' => 'required|numeric|min:0',
         'items.*.unit_price' => 'required|numeric|min:0',
         'items.*.tax_rate' => 'required|numeric|min:0|max:100',
+        // 'items.*.unit_id' => 'required|exists:units,id',
+
     ];
 
     public function mount(Invoice $invoice = null)
@@ -44,6 +47,8 @@ class InvoiceForm extends Component
         if ($invoice->exists) {
             $this->fill($invoice->toArray());
             $this->items = $invoice->items->toArray();
+            $this->issue_date = $invoice->issue_date->format('Y-m-d');
+            $this->due_date = $invoice->due_date->format('Y-m-d');
         } else {
             $this->issue_date = now()->format('Y-m-d');
             $this->due_date = now()->addDays(30)->format('Y-m-d');
@@ -78,15 +83,21 @@ class InvoiceForm extends Component
 
     public function addRentItem($lease)
     {
-        $this->items[] = [
-            'description' => 'Monthly Rent for ' . $lease->unit->property->name . ' - Unit ' . $lease->unit->unit_number,
-            'type' => 'rent',
-            'quantity' => 1,
-            'unit_price' => $lease->rent_amount,
-            'total' => $lease->rent_amount,
-            'tax_rate' => 0,
-            'tax_amount' => 0,
-        ];
+        foreach ($lease->unit_ids as $unitId) {
+            $unit = Unit::find($unitId);
+            if ($unit) {
+                $this->items[] = [
+                    'description' => 'Monthly Rent for ' . $unit->property->name . ' - Unit ' . $unit->unit_number,
+                    'type' => 'rent',
+                    'quantity' => 1,
+                    'unit_price' => $lease->rent_amount / count($lease->unit_ids),
+                    'total' => $lease->rent_amount / count($lease->unit_ids),
+                    'tax_rate' => 0,
+                    'tax_amount' => 0,
+                    // 'unit_id' => $unitId,
+                ];
+            }
+        }
     }
 
     public function removeItem($index)
@@ -125,6 +136,8 @@ class InvoiceForm extends Component
             'notes' => $this->notes,
         ];
 
+        // dd($data);
+
         if ($this->invoice->exists) {
             $this->invoice->update($data);
             $this->invoice->items()->delete();
@@ -141,12 +154,29 @@ class InvoiceForm extends Component
         return redirect()->route('invoices.show', $this->invoice);
     }
 
+    public function cancel()
+    {
+        return redirect()->route('billing.index');
+    }
+
     public function render()
     {
         $leases = Lease::where('status', 'active')->get();
+        
+        // Get all unit IDs from all leases
+        $unitIds = collect();
+        foreach ($leases as $lease) {
+            if ($lease->unit_ids) {
+                $unitIds = $unitIds->merge($lease->unit_ids);
+            }
+        }
+
+        // Get all units in one query
+        $units = Unit::whereIn('id', $unitIds->unique())->get();
 
         return view('livewire.billing.invoice-form', [
             'leases' => $leases,
+            'units' => $units,
         ]);
     }
 }

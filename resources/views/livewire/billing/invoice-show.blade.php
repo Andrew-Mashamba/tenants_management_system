@@ -34,7 +34,13 @@
                 <div class="sm:col-span-1">
                     <dt class="text-sm font-medium text-gray-500">Property</dt>
                     <dd class="mt-1 text-sm text-gray-900">
-                        {{ $invoice->lease->unit->property->name }} - Unit {{ $invoice->lease->unit->unit_number }}
+                        @if($invoice->lease && $invoice->lease->units && $invoice->lease->units->isNotEmpty())
+                            @foreach($invoice->lease->units as $unit)
+                                {{ $unit->property->name }} - Unit {{ $unit->name }}@if(!$loop->last), @endif
+                            @endforeach
+                        @else
+                            N/A
+                        @endif
                     </dd>
                 </div>
                 <div class="sm:col-span-1">

@@ -38,10 +38,10 @@
                                 </div>
                                 <div class="ml-4">
                                     <div class="text-sm font-medium text-indigo-600">
-                                        {{ $lease->tenant->name }}
+                                        {{ $lease->tenant?->name ?? 'No Tenant Assigned' }}
                                     </div>
                                     <div class="text-sm text-gray-500">
-                                        Unit {{ $lease->unit->unit_number }}
+                                        Unit {{ $lease->unit?->unit_number ?? 'N/A' }}
                                     </div>
                                 </div>
                             </div>

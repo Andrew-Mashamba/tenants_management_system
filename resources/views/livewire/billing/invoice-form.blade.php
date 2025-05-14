@@ -15,7 +15,18 @@
                             <select wire:model.live="lease_id" id="lease_id" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                 <option value="">Select Lease</option>
                                 @foreach($leases as $lease)
-                                    <option value="{{ $lease->id }}">{{ $lease->unit->property->name }} - Unit {{ $lease->unit->unit_number }} ({{ $lease->tenant->name }})</option>
+                                    <option value="{{ $lease->id }}">
+                                        {{ $lease->property->name }} - 
+                                        @foreach($lease->unit_ids as $unitId)
+                                            @php
+                                                $unit = $units->firstWhere('id', $unitId);
+                                            @endphp
+                                            @if($unit)
+                                                Unit {{ $unit->unit_id }}{{ !$loop->last ? ', ' : '' }}
+                                            @endif
+                                        @endforeach
+                                        ({{ $lease->tenant->name }})
+                                    </option>
                                 @endforeach
                             </select>
                             @error('lease_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
@@ -101,7 +112,7 @@
 
                                     <div class="col-span-6 sm:col-span-1">
                                         <label class="block text-sm font-medium text-gray-700">Unit Price</label>
-                                        <input type="number" step="0.01" wire:model="items.{{ $index }}.unit_price" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                        <input type="number" step="0.01" @if($item['type'] == 'rent') disabled @endif wire:model="items.{{ $index }}.unit_price" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                         @error("items.{$index}.unit_price") <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                                     </div>
 
@@ -132,7 +143,7 @@
         </div>
 
         <div class="flex justify-end">
-            <button type="button" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <button type="button" wire:click="cancel" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 Cancel
             </button>
             <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">

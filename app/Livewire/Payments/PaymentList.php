@@ -5,11 +5,13 @@ namespace App\Livewire\Payments;
 use App\Models\Payment;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Title;
 
 class PaymentList extends Component
 {
     use WithPagination;
 
+    #[Title('Payments List')]
     public $search = '';
     public $status = '';
     public $payment_method = '';

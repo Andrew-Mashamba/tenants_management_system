@@ -6,11 +6,14 @@ use App\Livewire\Properties\PropertyForm;
 use App\Livewire\Tenants\LeaseList;
 use App\Livewire\Tenants\LeaseForm;
 use App\Livewire\Tenants\TenantForm;
+use App\Livewire\Tenants\LeaseTermination;
 use App\Livewire\Tenants\TenantList;
 use App\Livewire\Billing\InvoiceList;
 use App\Livewire\Billing\InvoiceForm;
+use App\Livewire\Billing\InvoiceShow;
 use App\Livewire\Payments\PaymentList;
 use App\Livewire\Payments\PaymentForm;
+use App\Livewire\Payments\PaymentShow;
 use App\Livewire\Maintenance\MaintenanceRequestList;
 use App\Livewire\Maintenance\MaintenanceRequestForm;
 use App\Livewire\Maintenance\VendorList;
@@ -72,6 +75,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/create', function () {
             return view('properties.create');
         })->name('create');
+
+        // Route::get('/create', PropertyForm::class)->name('create');
         
         Route::get('/{property}/edit', PropertyForm::class)->name('edit');
 
@@ -85,16 +90,34 @@ Route::middleware('auth')->group(function () {
         Route::get('/', function () {
             return view('billing.index');
         })->name('index');
-        Route::get('/create', InvoiceForm::class)->name('create');
+        Route::get('/create', function () {
+            return view('billing.create');
+        })->name('create');
+        // Route::get('/create', InvoiceForm::class)->name('create');
+       
+    });
+
+    //Invoices Module
+    Route::prefix('invoices')->name('invoices.')->group(function () {
         Route::get('/{invoice}/edit', InvoiceForm::class)->name('edit');
+
+        Route::get('/{invoice}/show', InvoiceShow::class)->name('show');        
     });
 
     // Payments Module
     Route::prefix('payments')->name('payments.')->group(function () {
+        // dd('djdkfdfd');
         Route::get('/', function () {
             return view('payments.index');
         })->name('index');
-        Route::get('/create', PaymentForm::class)->name('create');
+        Route::get('/create', function () {
+            return view('payments.create');
+        })->name('create');
+        // Route::get('/{payment}/show', function () {
+        //     return view('payments.show');
+        // })->name('show');
+        // Route::get('/create', PaymentForm::class)->name('create');
+        Route::get('/{payment}/show', PaymentShow::class)->name('show');
         Route::get('/{payment}/edit', PaymentForm::class)->name('edit');
     });
 
@@ -148,7 +171,8 @@ Route::middleware('auth')->group(function () {
             return view('leases.index');
         })->name('index');
         Route::get('/create', LeaseForm::class)->name('create');
-        Route::get('/{lease}/edit', LeaseForm::class)->name('edit');
+        // Route::get('/{lease}/edit', LeaseForm::class)->name('edit');
+        Route::get('/{lease}/terminate', LeaseTermination::class)->name('terminate');
         Route::get('/{lease}/workflows/create', LeaseWorkflowForm::class)->name('workflows.create');
         Route::get('/{lease}/workflows/{workflow}/edit', LeaseWorkflowForm::class)->name('workflows.edit');
         Route::get('/templates', LeaseTemplateForm::class)->name('templates.index');

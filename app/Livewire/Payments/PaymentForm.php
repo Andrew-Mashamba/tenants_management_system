@@ -5,11 +5,14 @@ namespace App\Livewire\Payments;
 use App\Models\Payment;
 use App\Models\Lease;
 use App\Models\User;
+use App\Models\Unit;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\Attributes\Title;
 
 class PaymentForm extends Component
 {
+    #[Title('Payment Form')]
     public $payment;
     public $lease_id;
     public $tenant_id;
@@ -83,9 +86,18 @@ class PaymentForm extends Component
         return redirect()->route('payments.index');
     }
 
+    public function cancel()
+    {
+        $this->reset();
+        return redirect()->route('payments.index');
+    }
+
     public function render()
     {
         $leases = Lease::where('status', 'active')->get();
+            
+        $unitsIds = $leases->pluck('unit_ids')->flatten()->unique();
+        $units = Unit::whereIn('id', $unitsIds)->get();
         $tenants = User::whereHas('roles', function ($query) {
             $query->where('slug', 'tenant');
         })->get();
@@ -93,6 +105,7 @@ class PaymentForm extends Component
         return view('livewire.payments.payment-form', [
             'leases' => $leases,
             'tenants' => $tenants,
+            'units' => $units,
         ]);
     }
 }

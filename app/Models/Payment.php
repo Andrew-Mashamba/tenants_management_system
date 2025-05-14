@@ -17,6 +17,7 @@ class Payment extends Model
         'payment_date',
         'payment_method',
         'transaction_id',
+        'receipt_number',
         'status',
         'notes',
         'type',

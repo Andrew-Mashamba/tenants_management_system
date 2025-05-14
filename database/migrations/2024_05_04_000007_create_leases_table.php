@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('leases', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('unit_id')->constrained()->onDelete('cascade');
+            // $table->foreignId('unit_id')->constrained()->onDelete('cascade');
+            $table->json('unit_ids')->nullable();
             // $table->foreignId('tenant_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('tenant_id')->constrained('tenants')->onDelete('cascade');
             $table->date('start_date');

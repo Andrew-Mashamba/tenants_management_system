@@ -40,6 +40,17 @@ class LeaseTemplateForm extends Component
         }
     }
 
+    public function resetForm()
+    {
+        $this->template = null;
+        $this->name = '';
+        $this->description = '';
+        $this->content = '';
+        $this->variables = [];
+        $this->is_active = true;
+        $this->is_default = false;
+    }
+
     public function save()
     {
         $this->validate();
@@ -70,11 +81,26 @@ class LeaseTemplateForm extends Component
             'message' => $message
         ]);
 
-        return redirect()->route('leases.templates.index');
+        // return redirect()->route('leases.templates.index');
+        session()->flash('success', $message);
+        $this->resetForm();
     }
+
+    public function selectTemplate($id)
+    {
+        $this->template = LeaseTemplate::find($id);
+        $this->name = $this->template->name;
+        $this->description = $this->template->description;
+        $this->content = $this->template->content;
+        $this->variables = $this->template->variables;
+        $this->is_active = $this->template->is_active;
+        $this->is_default = $this->template->is_default;
+    }
+    
 
     public function render()
     {
-        return view('livewire.leases.lease-template-form');
+        $templates = LeaseTemplate::all();
+        return view('livewire.leases.lease-template-form', compact('templates'));
     }
 } 

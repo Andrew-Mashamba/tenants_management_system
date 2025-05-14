@@ -42,6 +42,16 @@
                             @endif
                         @endif
                     </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" wire:click="sortBy('unit_id')">
+                        Unit
+                        @if($sortField === 'unit_id')
+                            @if($sortDirection === 'asc')
+                                ↑
+                            @else
+                                ↓
+                            @endif
+                        @endif
+                    </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" wire:click="sortBy('start_date')">
                         Start Date
                         @if($sortField === 'start_date')
@@ -78,14 +88,26 @@
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                @forelse($leases as $lease)
+                @forelse($leases as $lease)                   
+                               
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900">{{ $lease->tenant->name }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900">{{ $lease->property->name }}</div>
-                            <div class="text-sm text-gray-500">Unit {{ $lease->unit->unit_number }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                @foreach($lease->unit_ids as $unitId)
+                                    @php
+                                        $unit = $units->firstWhere('id', $unitId);
+                                    @endphp
+                                    @if($unit)
+                                        <div>{{ $unit->name }}</div>
+                                    @endif
+                                @endforeach
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ $lease->start_date->format('M d, Y') }}
@@ -103,8 +125,15 @@
                                 {{ ucfirst($lease->status) }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        {{-- <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <a href="{{ route('leases.edit', $lease) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                        </td> --}}
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            @if($lease->status !== 'terminated')
+                                <a href="{{ route('leases.terminate', $lease) }}" class="text-red-600 hover:text-red-900">Terminate Lease</a>
+                            @elseif($lease->status === 'terminated')
+                                <span class="text-gray-500">Terminated</span>
+                            @endif
                         </td>
                     </tr>
                 @empty

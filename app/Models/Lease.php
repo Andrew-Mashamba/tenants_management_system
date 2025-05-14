@@ -14,30 +14,33 @@ class Lease extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = [
-        'tenant_id',
-        'property_id',
-        'unit_id',
-        'template_id',
-        'start_date',
-        'end_date',
-        'rent_amount',
-        'security_deposit',
-        'status',
-        'terms',
-        'notes',
-        'payment_frequency',
-        'late_fee',
-        'grace_period',
-        'created_by'
-    ];
+    // protected $fillable = [
+    //     'tenant_id',
+    //     'property_id',
+    //     'unit_id',
+    //     // 'template_id',
+    //     'start_date',
+    //     'end_date',
+    //     'rent_amount',
+    //     // 'security_deposit',
+    //     'status',
+    //     'terms',
+    //     'notes',
+    //     'payment_frequency',
+    //     // 'late_fee',
+    //     // 'grace_period',
+    //     // 'created_by'
+    // ];
+
+    protected $guarded = [];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
         'rent_amount' => 'decimal:2',
-        'security_deposit' => 'decimal:2',
-        'late_fee' => 'decimal:2',
+        'unit_ids' => 'array',
+        // 'security_deposit' => 'decimal:2',
+        // 'late_fee' => 'decimal:2',
         'terms' => 'array'
     ];
 
@@ -54,6 +57,11 @@ class Lease extends Model
     public function unit(): BelongsTo
     {
         return $this->belongsTo(Unit::class);
+    }
+
+    public function getUnitsAttribute()
+    {
+        return Unit::whereIn('id', $this->unit_ids ?? [])->get();
     }
 
     public function template(): BelongsTo

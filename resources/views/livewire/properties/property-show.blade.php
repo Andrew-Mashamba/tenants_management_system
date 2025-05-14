@@ -175,7 +175,7 @@
                                                 </div>
                                                 <div class="flex items-center space-x-4">
                                                     <div class="text-right">
-                                                        <p class="text-sm font-medium text-gray-900">${{ number_format($unit->unit_price, 2) }}</p>
+                                                        <p class="text-sm font-medium text-gray-900">${{ number_format($unit->unit_price, 2) ?? 'N/A' }}</p>
                                                         <p class="text-xs text-gray-500">per month</p>
                                                     </div>
                                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
@@ -217,7 +217,7 @@
                                                     </div> --}}
                                                     <div>
                                                         <p class="text-sm font-medium text-gray-500">Unit Price</p>
-                                                        <p class="mt-1 text-sm text-gray-900">${{ number_format($unit->unit_price, 2) }}</p>
+                                                        <p class="mt-1 text-sm text-gray-900">${{ number_format($unit->unit_price, 2) ?? 'N/A' }}</p>
                                                     </div>
                                                     {{-- <div>
                                                         <p class="text-sm font-medium text-gray-500">Deposit</p>
@@ -252,7 +252,7 @@
                                                     <div>
                                                          @if($unit->availability_status == 'occupied' || $unit->availability_status == 'maintenance' || $unit->availability_status == 'reserved')
                                                             <p class="text-sm font-medium text-gray-500">Available From</p>                                                       
-                                                            <p class="text-sm font-medium text-gray-900">{{ $unit->availability_from->format('M d, Y') }}</p>
+                                                            <p class="text-sm font-medium text-gray-900">{{ $unit->availability_from?->format('M d, Y') ?? 'N/A' }}</p>
                                                         @else
                                                             <p class="text-sm font-medium text-gray-500">Available</p>
                                                         @endif
@@ -263,11 +263,11 @@
                                                     </div>
                                                     <div>
                                                         <p class="text-sm font-medium text-gray-500">Last Updated</p>
-                                                        <p class="mt-1 text-sm text-gray-900">{{ $unit->updated_at->format('M d, Y') }}</p>
+                                                        <p class="mt-1 text-sm text-gray-900">{{ $unit->updated_at?->format('M d, Y') ?? 'N/A' }}</p>
                                                     </div>
                                                     <div>
                                                         <p class="text-sm font-medium text-gray-500">Created At</p>
-                                                        <p class="mt-1 text-sm text-gray-900">{{ $unit->created_at->format('M d, Y') }}</p>
+                                                        <p class="mt-1 text-sm text-gray-900">{{ $unit->created_at?->format('M d, Y') ?? 'N/A' }}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -300,11 +300,11 @@
                         <div class="space-y-4">
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Listed Date</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $property->created_at->format('M d, Y') }}</p>
+                                <p class="mt-1 text-sm text-gray-900">{{ $property->created_at?->format('M d, Y') ?? 'N/A' }}</p>
                             </div>
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Last Updated</p>
-                                <p class="mt-1 text-sm text-gray-900">{{ $property->updated_at->format('M d, Y') }}</p>
+                                <p class="mt-1 text-sm text-gray-900">{{ $property->updated_at?->format('M d, Y') ?? 'N/A' }}</p>
                             </div>
                         </div>
                     </div>

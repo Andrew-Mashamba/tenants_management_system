@@ -40,9 +40,16 @@ class TenantsStatus implements ShouldQueue
                     $lease->tenant->status = $lease->status;
                     $lease->tenant->save();
                 }
+                // check if lease is expired and if is greater than two days terminate the lease
                 if($today->gt($end_date)){
                     Log::info('Lease: ' . $lease->id . ' is expired');
                     $lease->status = 'expired';
+                    $lease->tenant->status = $lease->status;
+                    $lease->tenant->save();
+                }
+                if($today->gt($end_date->addDays(2))){
+                    Log::info('Lease: ' . $lease->id . ' is terminated');
+                    $lease->status = 'terminated';
                     $lease->tenant->status = $lease->status;
                     $lease->tenant->save();
                 }

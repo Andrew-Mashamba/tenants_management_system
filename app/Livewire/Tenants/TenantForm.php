@@ -152,10 +152,11 @@ class TenantForm extends Component
             $user->assignRole('tenant');
 
             //email the tenants credentials, use the template email blade view
+            // email to be if user has a lease
             // Mail::to($this->email)->send(new TenantCreated($user));
             // Mail::send('emails.tenants.created', ['user' => $user], function ($message) use ($user) {
             //     $message->to($user->email)
-            //             ->subject('Your Tenant Account Has Been Created');
+            //             ->subject('Your Tenant Account Has Been Created.');
             // });
 
         }
@@ -165,6 +166,7 @@ class TenantForm extends Component
             foreach ($this->documents as $document) {
                 $path = $document->store('tenant-documents/' . $this->tenant->id, 'public');
                 $this->tenant->documents()->create([
+                    'title' => $document->getClientOriginalName(),
                     'file_path' => $path,
                     'file_name' => $document->getClientOriginalName(),
                     'file_type' => $document->getClientMimeType(),

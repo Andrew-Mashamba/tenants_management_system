@@ -39,6 +39,9 @@ class Kernel extends ConsoleKernel
             ->daily()
             ->at('09:00')
             ->withoutOverlapping();
+
+        // Update tenants status daily
+        $schedule->job(new \App\Jobs\TenantsStatus)->daily();
     }
 
     protected function commands(): void

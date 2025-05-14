@@ -4,14 +4,14 @@
             <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                 <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                     <div class="bg-white px-4 py-5 border-b border-gray-200 sm:px-6">
-                        <div class="flex items-center justify-between">
+                        {{-- <div class="flex items-center justify-between">
                             <h3 class="text-lg leading-6 font-medium text-gray-900">
                                 Tenants
                             </h3>
                             <a href="{{ route('tenants.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                 Add Tenant
                             </a>
-                        </div>
+                        </div> --}}
                         <div class="mt-4 flex items-center">
                             <div class="flex-1">
                                 <div class="relative rounded-md shadow-sm">
@@ -84,17 +84,30 @@
                                             </div>
                                         </div>
                                     </td>
-                                    {{-- <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">{{ $tenant->property->name }}</div>
-                                        <div class="text-sm text-gray-500">{{ $tenant->property->address }}</div>
-                                    </td>--}}
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">{{ $tenant->leases->first()->property->name ?? 'N/A' }}</div>
+                                        <div class="text-sm text-gray-500">{{ $tenant->leases->first()->property->address ?? 'N/A' }}</div>
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm text-gray-900">{{ $tenant->phone }}</div>
                                         <div class="text-sm text-gray-500">{{ $tenant->emergency_contact }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            Active
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                                            <!-- custom background color -->
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                    {{ $tenant->status == 'active' ? 'bg-green-100 text-green-800' 
+                                                    : ($tenant->status == 'inactive' ? 'bg-yellow-100 text-yellow-800' 
+                                                    : ($tenant->status == 'expired' ? 'bg-red-100 text-black-800' 
+                                                    : ($tenant->status == 'terminated' ? 'bg-red-100 text-red-800' 
+                                                    : 'bg-gray-100 text-gray-800'))) }}">
+                                                    {{ $tenant->status == 'active' ? 'Active' 
+                                                    : ($tenant->status == 'inactive' ? 'Inactive' 
+                                                    : ($tenant->status == 'expired' ? 'Expired' 
+                                                    : ($tenant->status == 'terminated' ? 'Terminated' 
+                                                    : 'N/A'))) }}
+                                                </span>
+
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

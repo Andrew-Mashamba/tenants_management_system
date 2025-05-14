@@ -22,9 +22,11 @@ class Tenant extends Model
         'state',
         'postal_code',
         'country',
+        'status',
         'emergency_contact',
         'emergency_phone',
         'notes',
+        'documents',
     ];
 
     protected $casts = [

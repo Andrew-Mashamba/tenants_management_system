@@ -84,3 +84,4 @@
         {{ $payments->links() }}
     </div>
 </div>
+

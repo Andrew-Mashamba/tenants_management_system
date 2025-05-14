@@ -45,10 +45,16 @@
                             {{ $invoice->invoice_number }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $invoice->tenant->name }}
+                            {{ $invoice->tenant->name ?? 'N/A' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ $invoice->lease->unit->property->name }} - Unit {{ $invoice->lease->unit->unit_number }}
+                            @if($invoice->lease && $invoice->lease->units && $invoice->lease->units->isNotEmpty())
+                                @foreach($invoice->lease->units as $unit)
+                                    {{ $unit->property->name ?? 'N/A' }} - Unit {{ $unit->unit_number ?? 'N/A' }}@if(!$loop->last), @endif
+                                @endforeach
+                            @else
+                                N/A
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             <div class="text-gray-900">${{ number_format($invoice->total_amount, 2) }}</div>

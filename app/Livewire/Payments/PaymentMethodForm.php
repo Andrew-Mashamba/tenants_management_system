@@ -6,11 +6,13 @@ use App\Models\PaymentMethod;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Title;
 
 class PaymentMethodForm extends Component
 {
     use WithFileUploads;
 
+    #[Title('Payment Method Form')]
     public $paymentMethod;
     public $type;
     public $provider;

@@ -17,7 +17,9 @@ class Invoice extends Model
         'invoice_number',
         'issue_date',
         'due_date',
-        'amount',
+        'total_amount',
+        'paid_amount',
+        'balance',
         'status',
         'notes',
     ];
@@ -25,7 +27,9 @@ class Invoice extends Model
     protected $casts = [
         'issue_date' => 'date',
         'due_date' => 'date',
-        'amount' => 'decimal:2',
+        'total_amount' => 'decimal:2',
+        'paid_amount' => 'decimal:2',
+        'balance' => 'decimal:2',
     ];
 
     public function lease(): BelongsTo

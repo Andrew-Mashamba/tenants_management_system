@@ -17,7 +17,7 @@
                 List of all payments in the system.
             </p>
         </div>
-        <div class="border-t border-gray-200">
+        <div class="">
             <livewire:payments.payment-list />
         </div>
     </div>
